@@ -2,6 +2,8 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import fs from 'node:fs';
+import path from 'node:path';
 import type { Database as DB } from 'better-sqlite3';
 import type { EnvConfig } from './config/env.js';
 import { createAuthMiddleware } from './middleware/auth.js';
@@ -69,6 +71,16 @@ export function createApp({ db, config, pushService }: AppDeps): express.Applica
 
   // API 进店通道（Phase 6）
   app.use('/api/gateway/v1', createGatewayRouter(db));
+
+  // 前端静态资源（生产模式下存在则提供）
+  const webDist = path.resolve(process.cwd(), '../web/dist');
+  if (fs.existsSync(webDist)) {
+    app.use(express.static(webDist));
+    // SPA fallback：非 API 请求且文件不存在时返回 index.html
+    app.get(/^\/(?!api\/).*/, (_req, res) => {
+      res.sendFile(path.join(webDist, 'index.html'));
+    });
+  }
 
   // 错误处理（注册错误中间件）
   app.use(errorMiddleware);
