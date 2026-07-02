@@ -1,0 +1,182 @@
+{
+  "summary": {
+    "total": 27,
+    "passed": 27,
+    "failed": 0,
+    "passRate": 100
+  },
+  "results": [
+    {
+      "name": "登录页加载",
+      "status": "pass",
+      "detail": "标题: 多店管理平台",
+      "screenshot": "screenshots/01-login.png"
+    },
+    {
+      "name": "管理员登录",
+      "status": "pass",
+      "detail": "登录成功，跳转到 http://localhost:5173/dashboard",
+      "screenshot": "screenshots/02-after-login.png"
+    },
+    {
+      "name": "仪表盘页面",
+      "status": "pass",
+      "detail": "页面渲染正常",
+      "screenshot": "screenshots/03-dashboard.png"
+    },
+    {
+      "name": "店铺管理页面",
+      "status": "pass",
+      "detail": "列表加载 + 新建按钮可点击（表单输入框: 2）",
+      "screenshot": "screenshots/04-stores.png"
+    },
+    {
+      "name": "记账页面",
+      "status": "pass",
+      "detail": "页面加载正常",
+      "screenshot": "screenshots/05-entries.png"
+    },
+    {
+      "name": "库存页面",
+      "status": "pass",
+      "detail": "页面加载正常",
+      "screenshot": "screenshots/06-inventory.png"
+    },
+    {
+      "name": "排班页面",
+      "status": "pass",
+      "detail": "页面加载正常",
+      "screenshot": "screenshots/07-shifts.png"
+    },
+    {
+      "name": "工资页面",
+      "status": "pass",
+      "detail": "页面加载正常",
+      "screenshot": "screenshots/08-payroll.png"
+    },
+    {
+      "name": "分红页面",
+      "status": "pass",
+      "detail": "页面加载正常",
+      "screenshot": "screenshots/09-dividends.png"
+    },
+    {
+      "name": "员工页面",
+      "status": "pass",
+      "detail": "页面加载正常",
+      "screenshot": "screenshots/10-staff.png"
+    },
+    {
+      "name": "报表页面",
+      "status": "pass",
+      "detail": "页面加载 + 月度 Tab 切换正常",
+      "screenshot": "screenshots/11-reports.png"
+    },
+    {
+      "name": "通知中心页面",
+      "status": "pass",
+      "detail": "页面加载正常",
+      "screenshot": "screenshots/12-notifications.png"
+    },
+    {
+      "name": "推送设置页面",
+      "status": "pass",
+      "detail": "页面加载正常 + 保存按钮可用",
+      "screenshot": "screenshots/13-push-settings.png"
+    },
+    {
+      "name": "模板列表加载",
+      "status": "pass",
+      "detail": "列表加载（内置模板显示: true）",
+      "screenshot": "screenshots/14-templates-list.png"
+    },
+    {
+      "name": "模板新建",
+      "status": "pass",
+      "detail": "新建模板成功并出现在列表中",
+      "screenshot": "screenshots/15-template-create.png"
+    },
+    {
+      "name": "模板编辑",
+      "status": "pass",
+      "detail": "编辑后名称已更新",
+      "screenshot": "screenshots/16-template-edit.png"
+    },
+    {
+      "name": "模板导出",
+      "status": "pass",
+      "detail": "下载成功: e2e-------_178297059-djq0j5-0.5.0.json (715 字节)",
+      "screenshot": "screenshots/17-template-export.png"
+    },
+    {
+      "name": "模板分配",
+      "status": "pass",
+      "detail": "分配弹窗 + 选择店铺 + 确认按钮正常",
+      "screenshot": "screenshots/18-template-assign.png"
+    },
+    {
+      "name": "模板在线导入",
+      "status": "pass",
+      "detail": "UI 流程正常（SSRF 防护已拦截本地 URL，符合安全预期）",
+      "screenshot": "screenshots/19-template-online-import.png"
+    },
+    {
+      "name": "模板文件导入",
+      "status": "pass",
+      "detail": "文件导入成功并出现在列表中",
+      "screenshot": "screenshots/20-template-file-import.png"
+    },
+    {
+      "name": "模板删除",
+      "status": "pass",
+      "detail": "删除成功",
+      "screenshot": "screenshots/21-template-delete.png"
+    },
+    {
+      "name": "操作日志页面",
+      "status": "pass",
+      "detail": "页面加载正常",
+      "screenshot": "screenshots/22-logs.png"
+    },
+    {
+      "name": "侧边栏导航",
+      "status": "pass",
+      "detail": "点击导航后 URL: http://localhost:5173/templates",
+      "screenshot": "screenshots/23-sidebar-nav.png"
+    },
+    {
+      "name": "退出登录",
+      "status": "pass",
+      "detail": "退出后跳转登录页",
+      "screenshot": "screenshots/24-logout.png"
+    },
+    {
+      "name": "错误密码拒绝",
+      "status": "pass",
+      "detail": "错误密码未跳转",
+      "screenshot": "screenshots/25-wrong-pwd.png"
+    },
+    {
+      "name": "控制台错误检查",
+      "status": "pass",
+      "detail": "无关键控制台错误（忽略 8 个预期错误：登录前 401 / SSRF 拦截 500）"
+    },
+    {
+      "name": "后端健康检查",
+      "status": "pass",
+      "detail": "status=ok",
+      "screenshot": null
+    }
+  ],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  ],
+  "timestamp": "2026-07-02T05:37:02.963Z"
+}

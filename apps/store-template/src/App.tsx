@@ -1,14 +1,38 @@
-import type { CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { Routes, Route, Navigate, NavLink, useNavigate } from 'react-router-dom';
 import { PageLayout, Button } from '@msp/ui';
 import { useStoreAuth } from './lib/useStoreAuth.js';
-import { resolveTemplate } from '../core/template-loader.js';
+import { resolveTemplate, mergeServerConfig, type ServerTemplateConfig } from '../core/template-loader.js';
 import { isFeatureEnabled, ROUTE_FEATURE_MAP } from '../core/feature-flags.js';
+import { gatewayApi } from './lib/gatewayApi.js';
 import { TokenEntryPage } from '../shared-pages/TokenEntryPage.js';
+import type { TemplateConfig } from '../core/config-schema.js';
 
 export function App() {
   const { token, storeId, clear } = useStoreAuth();
   const navigate = useNavigate();
+  const [template, setTemplate] = useState<TemplateConfig>(() => resolveTemplate(storeId));
+
+  // 已登录后拉取服务端分配的模板配置
+  useEffect(() => {
+    if (!token) return;
+    let cancelled = false;
+    gatewayApi
+      .get('/template')
+      .then((res: { template_id: string; name?: string; version?: string; config?: ServerTemplateConfig }) => {
+        if (cancelled) return;
+        if (res && res.config) {
+          setTemplate(mergeServerConfig(res.config));
+        }
+      })
+      .catch(() => {
+        // 拉取失败时回退到内置模板
+        if (!cancelled) setTemplate(resolveTemplate(storeId));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token, storeId]);
 
   // 无 token 时仅暴露登录页
   if (!token) {
@@ -19,9 +43,6 @@ export function App() {
       </Routes>
     );
   }
-
-  // 按 storeId 解析模板（默认 demo -> 通用模板）
-  const template = resolveTemplate(storeId);
 
   // 按特性开关过滤可见路由
   const visibleRoutes = template.routes.filter((r) => {

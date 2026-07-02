@@ -153,17 +153,17 @@ function handleEvent(eventName: string, data: any, _fromBroadcast = false) {
       const eventType = data.type || '';
       if (data.storeId) {
         bumpStore(data.storeId);
-        invalidateCache('/stores/' + data.storeId);
+        // 失效与该店铺相关的缓存（匹配实际前端 URL，查询参数形式 ?storeId=）
+        invalidateCache('storeId=' + data.storeId);
         if (eventType === 'entry' || eventType === 'purchase') {
-          invalidateCache('/stores/' + data.storeId + '/entries');
-          invalidateCache('/stores/' + data.storeId + '/entries/stats');
-          invalidateCache('/stores/' + data.storeId + '/report');
+          invalidateCache('/entries');
+          invalidateCache('/dashboard');
         }
         if (eventType === 'inventory') {
-          invalidateCache('/stores/' + data.storeId + '/inventory');
+          invalidateCache('/inventory');
         }
         if (eventType === 'shift') {
-          invalidateCache('/stores/' + data.storeId + '/shifts');
+          invalidateCache('/shifts');
         }
       }
       if (eventType === 'notification') {
@@ -173,6 +173,9 @@ function handleEvent(eventName: string, data: any, _fromBroadcast = false) {
       }
       if (['entry', 'payroll', 'dividend'].includes(eventType)) {
         invalidateCache('/dashboard');
+        invalidateCache('/payroll');
+        invalidateCache('/dividends');
+        invalidateCache('/report');
         bumpGlobal();
       }
     } catch (e) { console.error('[SSE] handleEvent error:', e); }

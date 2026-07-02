@@ -1,0 +1,32 @@
+{
+  "id": "e2e-------_178297059-djq0j5",
+  "name": "E2E自动化测试模板_1782970597045_已更新",
+  "version": "0.5.0",
+  "description": "",
+  "source": "manual",
+  "source_url": null,
+  "created_at": "2026-07-02 05:36:38",
+  "updated_at": "2026-07-02 05:36:40",
+  "config": {
+    "name": "E2E自动化测试模板_1782970597045_已更新",
+    "version": "0.5.0",
+    "features": {
+      "inventory": true,
+      "shifts": true,
+      "payroll": true,
+      "dividends": false,
+      "reports": true,
+      "notifications": true,
+      "pushSettings": true
+    },
+    "theme": {
+      "primary": "#16a34a"
+    },
+    "routes": [
+      {
+        "path": "/",
+        "label": "本店信息"
+      }
+    ]
+  }
+}

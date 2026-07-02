@@ -3,6 +3,7 @@ import { Router } from 'express';
 import type { Database as DB } from 'better-sqlite3';
 import { requireAuth } from '../middleware/auth.js';
 import { ApiError } from '../middleware/error.js';
+import { assertStoreAccess, assertStoreQueryAccess } from '../middleware/store-access.js';
 import { sseManager } from '../services/sse-manager.js';
 import type { PushService } from '@msp/push-core';
 
@@ -11,7 +12,7 @@ export function createEntriesRouter(db: DB, pushService?: PushService): Router {
 
   // 列表
   router.get('/', requireAuth, (req, res) => {
-    const storeId = req.query.storeId as string;
+    const storeId = assertStoreQueryAccess(req);
     if (!storeId) {
       return res.json([]);
     }
@@ -41,6 +42,7 @@ export function createEntriesRouter(db: DB, pushService?: PushService): Router {
       if (!store_id || !type || amount === undefined || !date) {
         throw new ApiError(400, 'store_id/type/amount/date 必填');
       }
+      assertStoreAccess(req, store_id);
       const user = req.user!;
       const info = db
         .prepare(

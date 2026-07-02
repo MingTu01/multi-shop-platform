@@ -3,13 +3,14 @@ import { Router } from 'express';
 import type { Database as DB } from 'better-sqlite3';
 import { requireAuth } from '../middleware/auth.js';
 import { ApiError } from '../middleware/error.js';
+import { assertStoreAccess, assertStoreQueryAccess } from '../middleware/store-access.js';
 import { sseManager } from '../services/sse-manager.js';
 
 export function createInventoryRouter(db: DB): Router {
   const router = Router();
 
   router.get('/', requireAuth, (req, res) => {
-    const storeId = req.query.storeId as string;
+    const storeId = assertStoreQueryAccess(req);
     if (!storeId) return res.json([]);
     const rows = db
       .prepare('SELECT * FROM inventory_items WHERE store_id = ? ORDER BY sort_order, id')
@@ -31,6 +32,7 @@ export function createInventoryRouter(db: DB): Router {
     try {
       const { store_id, name, quantity, status, sort_order } = req.body as any;
       if (!store_id || !name) throw new ApiError(400, 'store_id/name 必填');
+      assertStoreAccess(req, store_id);
       const info = db
         .prepare('INSERT INTO inventory_items (store_id, name, quantity, status, sort_order) VALUES (?, ?, ?, ?, ?)')
         .run(store_id, name, quantity ?? 0, status || 'normal', sort_order ?? 0);

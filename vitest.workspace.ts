@@ -54,8 +54,9 @@ export default defineWorkspace([
       name: 'store-template',
       root: './apps/store-template',
       environment: 'jsdom',
-      include: ['src/**/*.{test,spec}.{ts,tsx}'],
+      include: ['src/**/*.{test,spec}.{ts,tsx}', 'tests/**/*.{test,spec}.{ts,tsx}', 'core/**/*.{test,spec}.{ts,tsx}', 'shared-pages/**/*.{test,spec}.{ts,tsx}'],
       globals: true,
+      setupFiles: ['./tests/setup.ts'],
     },
   },
 ]);

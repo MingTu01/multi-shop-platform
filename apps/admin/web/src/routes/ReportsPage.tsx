@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { useApi } from '../hooks/useApi.js';
+import { useStore } from '@msp/shared';
 import { Card, Empty, Tabs } from '@msp/ui';
 import { formatMoney } from '@msp/shared';
 
 export function ReportsPage() {
   const [active, setActive] = useState('daily');
-  const [storeId] = useState('S001');
+  const user = useStore((s) => s.user);
+  // ADMIN 无店铺时使用 S001 作为默认；其他角色用本人所属店铺
+  const [storeId] = useState(String(user?.store_id ?? 'S001'));
   const date = new Date().toISOString().slice(0, 10);
   const month = new Date().toISOString().slice(0, 7);
 

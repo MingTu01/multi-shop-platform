@@ -68,6 +68,43 @@ function seedTestData(db: DB) {
   );
   // 股东记录
   db.prepare('INSERT INTO shareholders (store_id, name, ratio) VALUES (?, ?, ?)').run('S001', '股东一', 0.5);
+
+  // 内置模板（与 seedDefaultData 保持一致）
+  const defaultConfig = JSON.stringify({
+    name: '通用模板',
+    version: '0.5.0',
+    features: { inventory: true, shifts: true, payroll: true, dividends: true, reports: true, notifications: true, pushSettings: true },
+    theme: { primary: '#16a34a' },
+    routes: [
+      { path: '/', label: '本店信息' },
+      { path: '/entries', label: '记账' },
+      { path: '/inventory', label: '库存' },
+      { path: '/shifts', label: '排班' },
+      { path: '/payroll', label: '工资' },
+      { path: '/reports', label: '报表' },
+      { path: '/notifications', label: '通知' },
+      { path: '/push-settings', label: '推送设置' },
+    ],
+  });
+  const retailConfig = JSON.stringify({
+    name: '零售示例',
+    version: '0.5.0',
+    features: { inventory: true, shifts: false, payroll: false, dividends: false, reports: true, notifications: true, pushSettings: false },
+    theme: { primary: '#0ea5e9' },
+    routes: [
+      { path: '/', label: '本店信息' },
+      { path: '/entries', label: '记账' },
+      { path: '/inventory', label: '库存' },
+      { path: '/reports', label: '报表' },
+      { path: '/notifications', label: '通知' },
+    ],
+  });
+  db.prepare('INSERT OR IGNORE INTO templates (id, name, version, config_json, description, source) VALUES (?, ?, ?, ?, ?, ?)').run(
+    'default', '通用模板', '0.5.0', defaultConfig, '系统内置通用模板', 'builtin',
+  );
+  db.prepare('INSERT OR IGNORE INTO templates (id, name, version, config_json, description, source) VALUES (?, ?, ?, ?, ?, ?)').run(
+    'retail-demo', '零售示例', '0.5.0', retailConfig, '系统内置零售示例模板', 'builtin',
+  );
 }
 
 function adminToken(userId = 1): string {
@@ -186,6 +223,32 @@ describe('admin-server API', () => {
         .set('Authorization', 'Bearer ' + adminToken());
       expect(res.status).toBe(200);
       expect(res.body.length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  describe('数据隔离', () => {
+    it('STAFF 不能为其他店铺创建记账', async () => {
+      // staff1 的 store_id=1，不等于 S002
+      const res = await request(app)
+        .post('/api/entries')
+        .set('Authorization', 'Bearer ' + staffToken())
+        .send({ store_id: 'S002', type: 'income', amount: 100, date: '2024-01-15' });
+      expect(res.status).toBe(403);
+    });
+
+    it('STAFF 不能读取其他店铺的库存', async () => {
+      const res = await request(app)
+        .get('/api/inventory?storeId=S002')
+        .set('Authorization', 'Bearer ' + staffToken());
+      expect(res.status).toBe(403);
+    });
+
+    it('ADMIN 可以为任意店铺创建记账', async () => {
+      const res = await request(app)
+        .post('/api/entries')
+        .set('Authorization', 'Bearer ' + adminToken())
+        .send({ store_id: 'S001', type: 'income', amount: 100, date: '2024-01-15' });
+      expect(res.status).toBe(200);
     });
   });
 
@@ -380,6 +443,178 @@ describe('admin-server API', () => {
         .get('/api/gateway/v1/store')
         .set('Authorization', 'Bearer ' + token);
       expect(res.status).toBe(401);
+    });
+  });
+
+  describe('模板管理', () => {
+    it('列表返回内置模板', async () => {
+      const res = await request(app)
+        .get('/api/templates')
+        .set('Cookie', 'token=' + adminToken());
+      expect(res.status).toBe(200);
+      const ids = res.body.map((t: any) => t.id);
+      expect(ids).toContain('default');
+      expect(ids).toContain('retail-demo');
+    });
+
+    it('未登录拒绝访问', async () => {
+      const res = await request(app).get('/api/templates');
+      expect(res.status).toBe(401);
+    });
+
+    it('非 ADMIN 不能创建模板', async () => {
+      const res = await request(app)
+        .post('/api/templates')
+        .set('Cookie', 'token=' + staffToken())
+        .send({ config: { name: 'x', version: '0.1.0' } });
+      expect(res.status).toBe(403);
+    });
+
+    it('ADMIN 可新建模板', async () => {
+      const res = await request(app)
+        .post('/api/templates')
+        .set('Cookie', 'token=' + adminToken())
+        .send({
+          config: {
+            name: '测试模板',
+            version: '0.1.0',
+            features: { inventory: true, shifts: false, payroll: true, dividends: false, reports: true, notifications: true, pushSettings: false },
+            theme: { primary: '#ff0000' },
+            routes: [{ path: '/', label: '首页' }, { path: '/entries', label: '记账' }],
+          },
+          description: '测试用',
+        });
+      expect(res.status).toBe(200);
+      expect(res.body.name).toBe('测试模板');
+      expect(res.body.config.theme.primary).toBe('#ff0000');
+      expect(res.body.config.features.shifts).toBe(false);
+      expect(res.body.id).toBeTruthy();
+    });
+
+    it('ADMIN 可更新模板', async () => {
+      const createRes = await request(app)
+        .post('/api/templates')
+        .set('Cookie', 'token=' + adminToken())
+        .send({ config: { name: '待更新', version: '0.1.0' } });
+      const id = createRes.body.id;
+      const res = await request(app)
+        .put(`/api/templates/${id}`)
+        .set('Cookie', 'token=' + adminToken())
+        .send({
+          config: { name: '已更新', version: '0.2.0', theme: { primary: '#00ff00' } },
+          description: '更新后',
+        });
+      expect(res.status).toBe(200);
+      expect(res.body.name).toBe('已更新');
+      expect(res.body.version).toBe('0.2.0');
+      expect(res.body.config.theme.primary).toBe('#00ff00');
+    });
+
+    it('导出模板返回 JSON 附件', async () => {
+      const res = await request(app)
+        .get('/api/templates/default/export')
+        .set('Cookie', 'token=' + adminToken());
+      expect(res.status).toBe(200);
+      expect(res.body.id).toBe('default');
+      expect(res.body.config.name).toBe('通用模板');
+    });
+
+    it('导入模板（JSON body）', async () => {
+      const res = await request(app)
+        .post('/api/templates/import')
+        .set('Cookie', 'token=' + adminToken())
+        .send({
+          id: 'external-x',
+          name: '外部模板',
+          version: '1.0.0',
+          config: {
+            name: '外部模板',
+            version: '1.0.0',
+            theme: { primary: '#123456' },
+            routes: [{ path: '/', label: '首页' }],
+          },
+        });
+      expect(res.status).toBe(200);
+      expect(res.body.name).toBe('外部模板');
+      expect(res.body.source).toBe('import');
+    });
+
+    it('在线导入（URL 拉取）- 无效 URL 报错', async () => {
+      const res = await request(app)
+        .post('/api/templates/import-url')
+        .set('Cookie', 'token=' + adminToken())
+        .send({ url: 'http://localhost:9999/not-exist.json' });
+      expect(res.status).toBeGreaterThanOrEqual(400);
+    });
+
+    it('在线导入 - 缺少 url 参数报 400', async () => {
+      const res = await request(app)
+        .post('/api/templates/import-url')
+        .set('Cookie', 'token=' + adminToken())
+        .send({});
+      expect(res.status).toBe(400);
+    });
+
+    it('内置模板不可删除', async () => {
+      const res = await request(app)
+        .delete('/api/templates/default')
+        .set('Cookie', 'token=' + adminToken());
+      expect(res.status).toBe(400);
+    });
+
+    it('可删除非内置模板', async () => {
+      const createRes = await request(app)
+        .post('/api/templates')
+        .set('Cookie', 'token=' + adminToken())
+        .send({ config: { name: '待删除', version: '0.1.0' } });
+      const id = createRes.body.id;
+      const res = await request(app)
+        .delete(`/api/templates/${id}`)
+        .set('Cookie', 'token=' + adminToken());
+      expect(res.status).toBe(200);
+      expect(res.body.ok).toBe(true);
+    });
+
+    it('分配模板给店铺', async () => {
+      const createRes = await request(app)
+        .post('/api/templates')
+        .set('Cookie', 'token=' + adminToken())
+        .send({ config: { name: '分配测试', version: '0.1.0' } });
+      const tplId = createRes.body.id;
+      const res = await request(app)
+        .post(`/api/templates/${tplId}/assign`)
+        .set('Cookie', 'token=' + adminToken())
+        .send({ storeId: 'S001' });
+      expect(res.status).toBe(200);
+      expect(res.body.store_id).toBe('S001');
+      expect(res.body.template_id).toBe(tplId);
+    });
+
+    it('查询店铺分配的模板', async () => {
+      const res = await request(app)
+        .get('/api/templates/store/S001')
+        .set('Cookie', 'token=' + adminToken());
+      expect(res.status).toBe(200);
+      expect(res.body.template_id).toBeTruthy();
+    });
+
+    it('网关 /template 返回分配的模板配置', async () => {
+      const token = ensureStoreToken(db, 'S001');
+      const res = await request(app)
+        .get('/api/gateway/v1/template')
+        .set('Authorization', 'Bearer ' + token);
+      expect(res.status).toBe(200);
+      expect(res.body.template_id).toBeTruthy();
+      expect(res.body.config).toBeTruthy();
+      expect(res.body.config.name).toBeTruthy();
+    });
+
+    it('无效配置（缺少 name）报错', async () => {
+      const res = await request(app)
+        .post('/api/templates')
+        .set('Cookie', 'token=' + adminToken())
+        .send({ config: { version: '0.1.0' } });
+      expect(res.status).toBe(500);
     });
   });
 });

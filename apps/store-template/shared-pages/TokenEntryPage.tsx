@@ -23,10 +23,10 @@ export function TokenEntryPage() {
     navigate('/');
   };
 
-  // 演示模式：预填假 Token 与服务器地址，便于快速体验
+  // 演示模式：预填假 Token（同源访问，服务器地址留空走代理）
   const handleDemo = () => {
     setTokenInput('msp_demo_xxx');
-    setServerURLInput('/');
+    setServerURLInput('');
   };
 
   return (

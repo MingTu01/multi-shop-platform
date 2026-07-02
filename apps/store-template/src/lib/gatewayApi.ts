@@ -14,7 +14,7 @@ function baseURL(): string {
 }
 
 async function request(method: string, url: string, body?: unknown): Promise<any> {
-  const res = await fetch(baseURL() + '/api/gateway' + url, {
+  const res = await fetch(baseURL() + '/api/gateway/v1' + url, {
     method,
     headers: {
       'Content-Type': 'application/json',

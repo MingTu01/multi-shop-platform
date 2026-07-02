@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { to: '/reports', label: '报表', roles: ['ADMIN', 'STORE_ADMIN', 'MANAGER'] },
   { to: '/notifications', label: '通知中心', roles: ['ADMIN', 'STORE_ADMIN', 'MANAGER', 'STAFF', 'SHAREHOLDER'] },
   { to: '/settings/push', label: '推送设置', roles: ['ADMIN', 'STORE_ADMIN', 'MANAGER', 'STAFF', 'SHAREHOLDER'] },
+  { to: '/templates', label: '模板管理', roles: ['ADMIN'] },
   { to: '/logs', label: '操作日志', roles: ['ADMIN', 'STORE_ADMIN', 'MANAGER'] },
 ];
 

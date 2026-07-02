@@ -92,9 +92,11 @@ export const useStore = create<AppState>((set) => ({
           return;
         }
         const d = await res.json();
-        if (d.user) {
+        // /api/auth/me 可能返回 { user: {...} }（登录响应格式）或直接返回用户对象
+        const u = d.user || (d.id ? d : null);
+        if (u) {
           resetRedirectFlag();
-          set({ user: d.user || null, token: 'cookie', loading: false });
+          set({ user: u, token: 'cookie', loading: false });
           return;
         }
         set({ user: null, token: null, loading: false });

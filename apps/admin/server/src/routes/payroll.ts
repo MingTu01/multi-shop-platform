@@ -3,6 +3,7 @@ import { Router } from 'express';
 import type { Database as DB } from 'better-sqlite3';
 import { requireAuth } from '../middleware/auth.js';
 import { ApiError } from '../middleware/error.js';
+import { assertStoreAccess, assertStoreQueryAccess } from '../middleware/store-access.js';
 import { sseManager } from '../services/sse-manager.js';
 import type { PushService } from '@msp/push-core';
 
@@ -10,7 +11,7 @@ export function createPayrollRouter(db: DB, pushService?: PushService): Router {
   const router = Router();
 
   router.get('/', requireAuth, (req, res) => {
-    const storeId = req.query.storeId as string;
+    const storeId = assertStoreQueryAccess(req);
     if (!storeId) return res.json([]);
     const rows = db
       .prepare(
@@ -37,6 +38,7 @@ export function createPayrollRouter(db: DB, pushService?: PushService): Router {
     try {
       const { store_id, user_id, amount, period } = req.body as any;
       if (!store_id || !user_id || amount === undefined) throw new ApiError(400, 'store_id/user_id/amount 必填');
+      assertStoreAccess(req, store_id);
       const info = db
         .prepare('INSERT INTO payroll (store_id, user_id, amount, status, period) VALUES (?, ?, ?, ?, ?)')
         .run(store_id, user_id, amount, 'pending', period || null);

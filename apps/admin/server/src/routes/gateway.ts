@@ -2,8 +2,18 @@
 // 店铺级 Token 鉴权 + 数据隔离 + 按 Token 限流 + OpenAPI
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
+import crypto from 'node:crypto';
 import type { Database as DB } from 'better-sqlite3';
+import { PUSH_TYPE_CONFIGS } from '@msp/shared';
 import { sseManager } from '../services/sse-manager.js';
+
+// 推送设置允许更新的字段白名单（防止 SQL 列名注入 / 覆盖主键）
+const PUSH_SETTINGS_ALLOWED_KEYS = new Set<string>([
+  'pushplus_token',
+  'wecom_secret',
+  'iyuu_token',
+  ...PUSH_TYPE_CONFIGS.map((c) => c.key),
+]);
 
 // 扩展 Request 携带 storeId
 declare global {
@@ -78,7 +88,7 @@ export function revokeStoreToken(db: DB, storeId: string): void {
 }
 
 function generateToken(storeId: string): string {
-  const rand = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  const rand = crypto.randomBytes(24).toString('hex');
   return `msp_${storeId}_${rand}`;
 }
 
@@ -195,6 +205,17 @@ export function createGatewayRouter(db: DB): Router {
     });
   });
 
+  // 本店分配的模板配置（供店铺端模板应用拉取）
+  router.get('/template', (req, res) => {
+    const assign = db.prepare('SELECT template_id FROM store_template_assignments WHERE store_id = ?').get(req.gatewayStoreId) as { template_id: string } | undefined;
+    const tplId = assign?.template_id || 'default';
+    const row = db.prepare('SELECT * FROM templates WHERE id = ?').get(tplId) as any;
+    if (!row) return res.json({ template_id: 'default', config: null });
+    let config: any = null;
+    try { config = JSON.parse(row.config_json); } catch { config = {}; }
+    res.json({ template_id: row.id, name: row.name, version: row.version, config });
+  });
+
   // 本店记账列表（强制 storeId 隔离）
   router.get('/entries', (req, res) => {
     const rows = db
@@ -280,6 +301,7 @@ export function createGatewayRouter(db: DB): Router {
     const sets: string[] = [];
     const vals: any[] = [];
     for (const [k, v] of Object.entries(body)) {
+      if (!PUSH_SETTINGS_ALLOWED_KEYS.has(k)) continue;
       sets.push(`${k} = ?`);
       vals.push(typeof v === 'boolean' ? (v ? 1 : 0) : v);
     }

@@ -1,0 +1,26 @@
+{
+  "name": "文件导入测试模板",
+  "version": "0.5.0",
+  "features": {
+    "inventory": true,
+    "shifts": false,
+    "payroll": false,
+    "dividends": false,
+    "reports": true,
+    "notifications": false,
+    "pushSettings": false
+  },
+  "theme": {
+    "primary": "#ef4444"
+  },
+  "routes": [
+    {
+      "path": "/",
+      "label": "本店信息"
+    },
+    {
+      "path": "/entries",
+      "label": "记账"
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 // 数据库建表 schema
 import type { Database as DB } from 'better-sqlite3';
+import { hashPassword } from '../utils/password.js';
 
 const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS schema_version (
@@ -158,6 +159,25 @@ CREATE TABLE IF NOT EXISTS store_tokens (
   created_at TEXT DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS templates (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  version TEXT NOT NULL,
+  config_json TEXT NOT NULL,
+  description TEXT,
+  source TEXT DEFAULT 'manual',
+  source_url TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS store_template_assignments (
+  store_id TEXT PRIMARY KEY,
+  template_id TEXT NOT NULL,
+  assigned_at TEXT DEFAULT (datetime('now')),
+  FOREIGN KEY (template_id) REFERENCES templates(id) ON DELETE CASCADE
+);
+
 CREATE INDEX IF NOT EXISTS idx_entries_store ON entries(store_id);
 CREATE INDEX IF NOT EXISTS idx_inventory_store ON inventory_items(store_id);
 CREATE INDEX IF NOT EXISTS idx_shifts_store ON shifts(store_id);
@@ -176,9 +196,8 @@ export function seedDefaultData(db: DB): void {
   const count = db.prepare('SELECT COUNT(*) as c FROM users').get() as { c: number };
   if (count.c > 0) return;
 
-  // 默认管理员（密码: admin123 - bcrypt hash cost 10）
-  // 为避免运行时依赖 bcrypt 在测试环境，使用预生成 hash
-  const adminHash = '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'; // admin123
+  // 默认管理员（密码: admin123）
+  const adminHash = hashPassword('admin123');
   db.prepare(
     'INSERT INTO users (username, password_hash, name, role) VALUES (?, ?, ?, ?)',
   ).run('admin', adminHash, '系统管理员', 'ADMIN');
@@ -189,6 +208,43 @@ export function seedDefaultData(db: DB): void {
   ).run('S001', '示例店铺', 1, 100000);
 
   // 默认系统设置
-  db.prepare('INSERT OR IGNORE INTO system_settings (key, value) VALUES (?, ?)').run('version', '0.4.0');
+  db.prepare('INSERT OR IGNORE INTO system_settings (key, value) VALUES (?, ?)').run('version', '0.6.0');
   db.prepare('INSERT OR IGNORE INTO system_settings (key, value) VALUES (?, ?)').run('initialized', '1');
+
+  // 默认模板（通用模板 + 零售示例）
+  const defaultConfig = JSON.stringify({
+    name: '通用模板',
+    version: '0.5.0',
+    features: { inventory: true, shifts: true, payroll: true, dividends: true, reports: true, notifications: true, pushSettings: true },
+    theme: { primary: '#16a34a' },
+    routes: [
+      { path: '/', label: '本店信息' },
+      { path: '/entries', label: '记账' },
+      { path: '/inventory', label: '库存' },
+      { path: '/shifts', label: '排班' },
+      { path: '/payroll', label: '工资' },
+      { path: '/reports', label: '报表' },
+      { path: '/notifications', label: '通知' },
+      { path: '/push-settings', label: '推送设置' },
+    ],
+  });
+  const retailConfig = JSON.stringify({
+    name: '零售示例',
+    version: '0.5.0',
+    features: { inventory: true, shifts: false, payroll: false, dividends: false, reports: true, notifications: true, pushSettings: false },
+    theme: { primary: '#0ea5e9' },
+    routes: [
+      { path: '/', label: '本店信息' },
+      { path: '/entries', label: '记账' },
+      { path: '/inventory', label: '库存' },
+      { path: '/reports', label: '报表' },
+      { path: '/notifications', label: '通知' },
+    ],
+  });
+  db.prepare('INSERT OR IGNORE INTO templates (id, name, version, config_json, description, source) VALUES (?, ?, ?, ?, ?, ?)').run(
+    'default', '通用模板', '0.5.0', defaultConfig, '系统内置通用模板', 'builtin',
+  );
+  db.prepare('INSERT OR IGNORE INTO templates (id, name, version, config_json, description, source) VALUES (?, ?, ?, ?, ?, ?)').run(
+    'retail-demo', '零售示例', '0.5.0', retailConfig, '系统内置零售示例模板', 'builtin',
+  );
 }

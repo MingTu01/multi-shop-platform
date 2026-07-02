@@ -1,0 +1,32 @@
+{
+  "id": "------0fqncn",
+  "name": "自定义测试",
+  "version": "0.2.0",
+  "description": null,
+  "source": "manual",
+  "source_url": null,
+  "created_at": "2026-07-02 04:57:20",
+  "updated_at": "2026-07-02 04:57:20",
+  "config": {
+    "name": "自定义测试",
+    "version": "0.2.0",
+    "features": {
+      "inventory": true,
+      "shifts": true,
+      "payroll": true,
+      "dividends": true,
+      "reports": true,
+      "notifications": true,
+      "pushSettings": true
+    },
+    "theme": {
+      "primary": "#abc123"
+    },
+    "routes": [
+      {
+        "path": "/",
+        "label": "首页"
+      }
+    ]
+  }
+}

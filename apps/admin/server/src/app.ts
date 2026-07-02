@@ -21,6 +21,7 @@ import { createReportsRouter } from './routes/reports.js';
 import { createLogsRouter } from './routes/logs.js';
 import { createSystemRouter } from './routes/system.js';
 import { createGatewayRouter } from './routes/gateway.js';
+import { createTemplatesRouter } from './routes/templates.js';
 import type { PushService } from '@msp/push-core';
 
 export interface AppDeps {
@@ -62,6 +63,9 @@ export function createApp({ db, config, pushService }: AppDeps): express.Applica
   app.use('/api/reports', createReportsRouter(db));
   app.use('/api/logs', createLogsRouter(db));
   app.use('/api/system', createSystemRouter(db));
+
+  // 模板管理（Phase 5 扩展）
+  app.use('/api/templates', createTemplatesRouter(db));
 
   // API 进店通道（Phase 6）
   app.use('/api/gateway/v1', createGatewayRouter(db));
