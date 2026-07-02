@@ -216,10 +216,14 @@ const storageHandler = (e: StorageEvent) => {
   }
 };
 
-window.addEventListener('beforeunload', beforeUnloadHandler);
-window.addEventListener('storage', storageHandler);
+// 浏览器环境才注册全局监听（避免 Node/SSR 端 import 时抛错）
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', beforeUnloadHandler);
+  window.addEventListener('storage', storageHandler);
+}
 
 export function cleanupSSEListeners() {
+  if (typeof window === 'undefined') return;
   window.removeEventListener('beforeunload', beforeUnloadHandler);
   window.removeEventListener('storage', storageHandler);
 }

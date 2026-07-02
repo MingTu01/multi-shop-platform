@@ -1,3 +1,4 @@
 packages:
   - 'packages/*'
-  - 'apps/*'
+  - 'apps/admin/*'
+  - 'apps/store-template'

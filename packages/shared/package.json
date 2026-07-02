@@ -23,6 +23,10 @@
       "types": "./dist/utils/index.d.ts",
       "import": "./dist/utils/index.js"
     },
+    "./utils/network": {
+      "types": "./dist/utils/network.d.ts",
+      "import": "./dist/utils/network.js"
+    },
     "./api": {
       "types": "./dist/api/index.d.ts",
       "import": "./dist/api/index.js"
