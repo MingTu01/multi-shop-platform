@@ -1,6 +1,6 @@
 {
   "name": "multi-shop-platform",
-  "version": "0.1.0",
+  "version": "0.6.0",
   "private": true,
   "description": "Multi Shop Platform - 管理端与店铺端分离的可插拔多店管理系统",
   "scripts": {
@@ -8,11 +8,36 @@
     "build:ui": "pnpm --filter @msp/ui build",
     "build:push-core": "pnpm --filter @msp/push-core build",
     "build:packages": "pnpm run build:shared && pnpm run build:ui && pnpm run build:push-core",
+    "build:admin": "pnpm --filter @msp/admin build",
+    "build:store-template": "pnpm --filter @msp/store-template build",
+    "build:all": "pnpm run build:packages && pnpm run build:admin && pnpm run build:store-template",
     "typecheck": "pnpm -r run typecheck",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "clean": "pnpm -r exec rm -rf dist node_modules"
   },
   "devDependencies": {
-    "typescript": "^5.6.0"
+    "@eslint/js": "^9.10.0",
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/react": "^16.0.0",
+    "@types/node": "^22.0.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "@vitest/coverage-v8": "^2.1.0",
+    "eslint": "^9.10.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.37.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "jsdom": "^25.0.0",
+    "prettier": "^3.3.0",
+    "typescript": "^5.6.0",
+    "typescript-eslint": "^8.0.0",
+    "vite": "^5.4.0",
+    "vitest": "^2.1.0"
   },
   "engines": {
     "node": ">=20.0.0",
