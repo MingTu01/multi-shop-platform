@@ -1,0 +1,22 @@
+{
+  "name": "multi-shop-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Multi Shop Platform - 管理端与店铺端分离的可插拔多店管理系统",
+  "scripts": {
+    "build:shared": "pnpm --filter @msp/shared build",
+    "build:ui": "pnpm --filter @msp/ui build",
+    "build:push-core": "pnpm --filter @msp/push-core build",
+    "build:packages": "pnpm run build:shared && pnpm run build:ui && pnpm run build:push-core",
+    "typecheck": "pnpm -r run typecheck",
+    "clean": "pnpm -r exec rm -rf dist node_modules"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
