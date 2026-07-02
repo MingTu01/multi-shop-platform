@@ -154,6 +154,7 @@ multi-shop-platform/
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - 架构设计文档
 - [PACKAGES.md](./PACKAGES.md) - 包详细说明
 - [ROADMAP.md](./ROADMAP.md) - 版本路线图
+- [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) - 完整实施计划（Phase 2~7 细化）
 
 ## License
 
