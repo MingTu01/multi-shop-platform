@@ -1,0 +1,20 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="link" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e0e7ff"/>
+    </linearGradient>
+  </defs>
+  <!-- 圆角背景 -->
+  <rect width="128" height="128" rx="32" fill="url(#bg)"/>
+  <!-- 三个连接的圆点代表多店链接 -->
+  <circle cx="40" cy="44" r="14" fill="url(#link)" opacity="0.95"/>
+  <circle cx="88" cy="44" r="14" fill="url(#link)" opacity="0.95"/>
+  <circle cx="64" cy="84" r="14" fill="url(#link)" opacity="0.95"/>
+  <!-- 连接线 -->
+  <path d="M40 44 L88 44 M40 44 L64 84 M88 44 L64 84" stroke="url(#link)" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+</svg>
