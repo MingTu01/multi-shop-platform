@@ -2,12 +2,270 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 引入思源黑体（中文优化）+ DM Sans（英文 UI 字体） */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+
+/* 全局样式 - 翡翠绿专业主题 */
 html, body, #root {
   height: 100%;
   margin: 0;
 }
+
 body {
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background: #f8fafc;
-  color: #1e293b;
+  font-family: 'DM Sans', 'Noto Sans SC', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--msp-bg);
+  color: var(--msp-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tailwind 基础层扩展 */
+@layer base {
+  /* 滚动条样式 */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--msp-bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--msp-border);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--msp-primary);
+  }
+  
+  /* 选中文字样式 */
+  ::selection {
+    background: var(--msp-primary-light);
+    color: var(--msp-primary-active);
+  }
+  
+  /* 焦点样式 */
+  :focus-visible {
+    outline: 2px solid var(--msp-primary);
+    outline-offset: 2px;
+  }
+}
+
+/* 组件层 */
+@layer components {
+  /* 侧边栏导航项 */
+  .msp-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-radius: var(--msp-radius-md);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--msp-text-muted);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .msp-nav-item:hover {
+    background: var(--msp-primary-light);
+    color: var(--msp-primary);
+  }
+  .msp-nav-item.active {
+    background: var(--msp-primary);
+    color: white;
+    box-shadow: var(--msp-shadow-sm);
+  }
+  .msp-nav-item.active .msp-nav-icon {
+    color: white;
+  }
+  
+  /* 卡片样式 */
+  .msp-card {
+    background: var(--msp-surface);
+    border: 1px solid var(--msp-border);
+    border-radius: var(--msp-radius-lg);
+    box-shadow: var(--msp-shadow-card);
+    padding: 20px;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .msp-card:hover {
+    box-shadow: var(--msp-shadow-md);
+    border-color: var(--msp-border-strong);
+  }
+  
+  /* 统计卡片 */
+  .msp-stat-card {
+    background: linear-gradient(135deg, var(--msp-surface) 0%, var(--msp-primary-light) 100%);
+    border: 1px solid var(--msp-border-strong);
+    border-radius: var(--msp-radius-xl);
+    padding: 24px;
+    box-shadow: var(--msp-shadow-card);
+  }
+  .msp-stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--msp-primary);
+    line-height: 1.2;
+  }
+  .msp-stat-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--msp-text-muted);
+    margin-top: 8px;
+  }
+  
+  /* 按钮 */
+  .msp-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--msp-radius-md);
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .msp-btn-primary {
+    background: var(--msp-primary);
+    color: white;
+    box-shadow: var(--msp-shadow-sm);
+  }
+  .msp-btn-primary:hover {
+    background: var(--msp-primary-hover);
+    box-shadow: var(--msp-shadow-md);
+    transform: translateY(-1px);
+  }
+  .msp-btn-secondary {
+    background: var(--msp-surface);
+    color: var(--msp-text);
+    border: 1px solid var(--msp-border);
+  }
+  .msp-btn-secondary:hover {
+    border-color: var(--msp-primary);
+    color: var(--msp-primary);
+  }
+  .msp-btn-danger {
+    background: var(--msp-danger);
+    color: white;
+  }
+  .msp-btn-danger:hover {
+    background: #dc2626;
+  }
+  
+  /* 输入框 */
+  .msp-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--msp-border);
+    border-radius: var(--msp-radius-md);
+    font-size: 14px;
+    color: var(--msp-text);
+    background: var(--msp-surface);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .msp-input:focus {
+    border-color: var(--msp-primary);
+    box-shadow: 0 0 0 3px var(--msp-primary-light);
+    outline: none;
+  }
+  .msp-input::placeholder {
+    color: var(--msp-text-weak);
+  }
+  
+  /* 表格 */
+  .msp-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  .msp-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--msp-text-muted);
+    background: var(--msp-surface-alt);
+    border-bottom: 2px solid var(--msp-border);
+  }
+  .msp-table td {
+    padding: 14px 16px;
+    font-size: 14px;
+    color: var(--msp-text);
+    border-bottom: 1px solid var(--msp-border);
+  }
+  .msp-table tr:hover td {
+    background: var(--msp-primary-light);
+  }
+  
+  /* Badge */
+  .msp-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: var(--msp-radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .msp-badge-primary {
+    background: var(--msp-primary-light);
+    color: var(--msp-primary-active);
+  }
+  .msp-badge-success {
+    background: var(--msp-success-light);
+    color: var(--msp-success);
+  }
+  .msp-badge-warning {
+    background: var(--msp-warning-light);
+    color: var(--msp-warning);
+  }
+  .msp-badge-danger {
+    background: var(--msp-danger-light);
+    color: var(--msp-danger);
+  }
+  
+  /* Logo */
+  .msp-logo-icon {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--msp-border);
+  }
+  
+  /* 用户信息区 */
+  .msp-user-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--msp-border);
+    background: var(--msp-surface-alt);
+  }
+}
+
+/* 动画 */
+@layer utilities {
+  .msp-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+  .msp-slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+  .msp-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }

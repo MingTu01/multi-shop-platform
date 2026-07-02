@@ -9,6 +9,8 @@
   "sideEffects": ["**/*.css"],
   "exports": {
     ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+    "./icons": { "types": "./dist/icons/index.d.ts", "import": "./dist/icons/index.js" },
+    "./icons/Logo": { "types": "./dist/icons/Logo.d.ts", "import": "./dist/icons/Logo.js" },
     "./styles.css": "./dist/styles.css"
   },
   "scripts": {

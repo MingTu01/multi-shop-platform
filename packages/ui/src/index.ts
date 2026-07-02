@@ -3,6 +3,9 @@
 export * from './theme/theme-provider';
 export * from './theme/tokens';
 
+// 图标
+export * from './icons';
+
 // 基础组件（7）
 export * from './primitives/button';
 export * from './primitives/input';
